@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Web Terminal</title>
+    <style>
+        body { background: #1e1e1e; color: #ffffff; font-family: monospace; }
+        #terminal { width: 80%; max-width: 900px; margin: 50px auto; }
+        #output { white-space: pre-wrap; border: 1px solid #555; padding: 10px; min-height: 400px; background: #111; }
+        #command { width: 100%; padding: 10px; border: none; background: #222; color: #fff; font-family: monospace; }
+        #command:focus { outline: none; }
+    </style>
+</head>
+<body>
+    <div id="terminal">
+        <div id="output"></div>
+        <input type="text" id="command" placeholder="Enter command...">
+    </div>
+    <div id="terminal">
+    <div class="info">Python Terminal v1.0 - Advanced Command Interface</div>
+    <div class="tip">Type 'help' for available commands</div>
+</div>
+
+<style>
+.info { color: #00ffff; font-weight: bold; } /* cyan color for header */
+.tip { color: #888888; font-style: italic; } /* gray tip text */
+.output { color: #00ff00; } /* green output */
+.error { color: #ff4d4d; } /* red errors */
+</style>
+
+    <script>
+        const outputDiv = document.getElementById("output");
+        const commandInput = document.getElementById("command");
+
+        commandInput.addEventListener("keydown", async (e) => {
+            if (e.key === "Enter") {
+                const cmd = commandInput.value.trim();
+                if (!cmd) return;
+
+                outputDiv.textContent += `> ${cmd}\n`;
+                commandInput.value = "";
+
+                const response = await fetch("/execute", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ command: cmd })
+                });
+
+                const result = await response.json();
+                if (result.output) outputDiv.textContent += result.output + "\n";
+                if (result.error) outputDiv.textContent += result.error + "\n";
+
+                outputDiv.scrollTop = outputDiv.scrollHeight;
+            }
+        });
+    </script>
+</body>
+</html>
